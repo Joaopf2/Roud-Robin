@@ -17,7 +17,7 @@ int main() {
     
     // Loop para criar vários processos
     for(int k = 0; k < num_processes; k++) {
-        printf("Digite o PID e o tempo total do processo %d (separados por espaço): ", k+1);
+        printf("Digite o PID e o tempo total do processo %d (separados por espaco): ", k+1);
         scanf("%d %d", &i, &j);
         
         processes[k] = create_process(i, j);  // Cria novo processo
