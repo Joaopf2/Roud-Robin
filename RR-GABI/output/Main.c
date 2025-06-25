@@ -12,7 +12,7 @@ int main() {
     int Contador_processos = 1;
     int contador_ciclos = 1;
 
-    printf("Ola!\n");
+    printf("Ola, professor Modesto!\n");
     printf("Digite o valor do quantum: ");
     scanf("%d",&quantum);
 
@@ -38,8 +38,9 @@ int main() {
         }
     }
 
+    printf("\n_____________________________________________\n");
     //Loop da simulação foi inciado
-    printf("Simulacao INICIADA\n");
+    printf("\n Simulacao INICIADA...\n");
     //E vai continuar enquanto houver processos
     while(scheduler.ready_queue!= NULL){
 
@@ -70,7 +71,11 @@ int main() {
         print_queue(&scheduler);
     }
 
-    printf("Simulacao finalizada");
+    printf("\n Simulacao FINALIZADA...");
+    printf("\n_____________________________________________\n");
+    printf("\nPressione ENTER para fechar a janela!\n");
+    getchar();
+    getchar();
 
     return 0;
 }
@@ -169,7 +174,10 @@ Process* schedule(Scheduler *sched){
     }
     //Caso 3: Se não entrou em nenhum if, ele continua no estado EXECUTANDO,pois ainda tem tempo de sobre no seu quantum
 
+
     return processo_atual;
+
+
 }
 
 ////SCHEDULER.H: Exibe todos os processos na fila de prontos.
