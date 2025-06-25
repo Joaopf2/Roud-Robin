@@ -118,7 +118,11 @@ void print_process(const Process *p) {
         printf("PID: %d | Estado: %s | CPU: %d | Restante: %d | Quantum: %d\n",
                p->pid, state_str, p->total_cpu_time, p->remaining_time, p->quantum_remaining);
     } else {
-        printf("Processo nulo.\n");
+        printf("Processo NULO.\n");
+        printf("\n_____________________________________________\n");
+        printf("\nPressione ENTER para fechar a janela!\n");
+        getchar();
+        getchar();
     }
 }
 
