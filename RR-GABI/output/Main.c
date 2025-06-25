@@ -5,6 +5,15 @@
 #include "rr_scheduler.h"
 
 
+/* Simulador - Round Robin 
+    Grupo:
+    - Gabriella Pereira Morais
+    - João Pedro Freitas Farias
+    - Sophia Vitoria Albuquerque de Castro
+    - Vitória Bitencourte Galliac
+
+*/
+
 
 int main() {
     Scheduler scheduler;
@@ -42,32 +51,48 @@ int main() {
     //Loop da simulação foi inciado
     printf("\n Simulacao INICIADA...\n");
     //E vai continuar enquanto houver processos
-    while(scheduler.ready_queue!= NULL){
+    while (scheduler.ready_queue != NULL || scheduler.blocked_queue != NULL) {
 
         printf("\n\n === CICLO %-2d ===\n", contador_ciclos);
         contador_ciclos++;
 
-        //Ciclo do escalonador
-        Process* processo_atual = schedule(&scheduler);
 
-        if(processo_atual!=NULL){
-            printf("CPU executou o processo:\n");
-            print_process(processo_atual);
-            // Se o processo executou agora está no estado TERMINADO
-            if(processo_atual->state==TERMINADO){
-                printf("Processo %d finalizou.\n",processo_atual->pid);
-                printf("Removendo da fila...\n");
-                handle_terminated_process(&scheduler,processo_atual);
-            } else {
-            // Se o processo não terminou, existe uma chance de ele ser bloqueado, decidimos deixar uma chance de 15%
-            if((rand()%100)<15){
-                handle_blocked_process(&schedule,processo_atual);
+
+        if(scheduler.blocked_queue != NULL) {
+             // Chance de 30% de um processo ser desbloqueado neste ciclo
+            if((rand()%100)<30){
+                Process* process_to_unblock = scheduler.blocked_queue;
+
+                // Remove ele da fila de bloqueados
+                scheduler.blocked_queue = process_to_unblock->next;
+
+                printf("\n Processo %d foi DESBLOQUEADO e voltou para a fila de prontos.\n", process_to_unblock->pid);
+                // Adiciona ele de volta na fila de prontos
+                add_to_ready_queue(&scheduler, process_to_unblock);
                 }
             }
-    } else{
-         printf("CPU ociosa\n");
-    }
-        // Mostra o estado da fila de prontos no final do ciclo
+
+         //Ciclo do escalonador
+        Process* processo_atual = schedule(&scheduler);
+
+        if (processo_atual != NULL) {
+            printf("CPU executou o processo:\n");
+            print_process(processo_atual);
+
+            if (processo_atual->state == TERMINADO) {
+                printf("\n\tProcesso %d finalizou. Removendo do sistema...\n", processo_atual->pid);
+                handle_terminated_process(&scheduler, processo_atual);
+            } else {
+                // SE NÃO TERMINOU, aqui ele pode ser bloqueado
+                // Chance de 15% de ser bloqueado por um evento de E/S.
+                if ((rand() % 100) < 15) {
+                    handle_blocked_process(&scheduler, processo_atual);
+                }
+            }
+        } else {
+            // Se a fila de prontos estava vazia, a CPU fica ociosa.
+            printf("CPU ociosa (nenhum processo pronto para executar)...\n");
+        }
         print_queue(&scheduler);
     }
 
@@ -130,6 +155,7 @@ void print_process(const Process *p) {
 //SCHEDULER.H: Depois de ter a quantidade de quantum definido (pelo process.h), vamos para o ESCALONADOR
 void init_scheduler(Scheduler *sched, int quantum){
     sched->ready_queue = NULL; //A fila começa vazia
+    sched->blocked_queue = NULL; // Inicia uma nova fila, para os processos bloqueados.. "sala de espera"
     sched->quantum = quantum; //Definição do quantum do sistema
 }
 
@@ -232,8 +258,8 @@ void handle_blocked_process(Scheduler *sched, Process *p){
     }
     //Muda para o estado para BLOQUEADO
     p->state = BLOQUEADO;
-    //O processo não foi destruído, e então limpamos o ponteiro 'next', já que não está mais na fila
-    p->next=NULL;
+    p->next = sched->blocked_queue; // O processo aponta para o antigo início da lista
+    sched->blocked_queue = p;       // A lista agora começa neste processo
 }
 
 //RR_SCHEDULER.H: Remove um processo finalizado da fila e libera sua memória
